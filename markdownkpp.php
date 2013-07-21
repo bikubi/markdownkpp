@@ -3,7 +3,7 @@
 
 class Markdownkpp {
 
-	const delimitRe = '/[^\n]    +/'; /* 4 or more spaces that aren't indentation */
+	const delimitRe = '/[^\n]\K    +/'; /* 4 or more spaces that aren't indentation */
 
 	static public function process ($dom) {
 		$uls = $dom->getElementsByTagName('ul');
