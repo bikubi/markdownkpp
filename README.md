@@ -24,6 +24,7 @@ becomes
 Notes
 * Tabs are normalized to 4 spaces by markdown, hence the two tabs rule (as they become *at least* 4 spaces)
 * indentation shouldn't affect the process, it doesn't spawn a new cell
+* TODO: make it safe for `include`ing (shebang gets in the way atm)
 * TODO: support for `thead` and `th`
 * TODO: support for `caption`
 * TODO: handle `colspan` somehow
