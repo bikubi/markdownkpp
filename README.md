@@ -22,6 +22,7 @@ becomes
 (indentation added for clarity)
 
 Notes
+* the syntax tries to follow markdown's idea of "easy-to-read, easy-to-write". Even if unprocessed, the source is readable.
 * it reads from STDIN
 * to install, put the script in `/usr/local/bin`, or somewhere in your `PATH`, and give it appropriate execution rights
 * Tabs are normalized to 4 spaces by markdown, hence the two tabs rule (as they become *at least* 4 spaces)
