@@ -9,8 +9,9 @@ class Markdownkpp {
 		$uls = $dom->getElementsByTagName('ul');
 		foreach ($uls as $ul) {
 			if (self::ulHasTabs($ul)) {
-				$ul->parentNode->replaceChild(self::ulToTable($ul), $ul);
-				
+				$table = self::ulToTable($ul);
+				self::colspanPad($table);
+				$ul->parentNode->replaceChild($table, $ul);
 			}
 		}
 	}
@@ -42,13 +43,14 @@ class Markdownkpp {
 	}
 	
 	private static function ulToTable ($ul) {
+		$colCount = self::ulHasTabs($ul, true);
 		$doc = $ul->ownerDocument;
 		$table = $doc->createElement('table');
 		$tbody = $doc->createElement('tbody');
 		$table->appendChild($tbody);
 		foreach ($ul->childNodes as $li) {
 			if ($li->nodeName === 'li') {
-				$tr = self::liToTr($li);
+				$tr = self::liToTr($li, $colCount);
 				$tbody->appendChild($tr);
 			}
 		}
@@ -58,11 +60,15 @@ class Markdownkpp {
 		$doc = $li->ownerDocument;
 		$tr = $doc->createElement('tr');
 		$td = self::trAddTd($tr);
+		$cols = 1;
 		foreach ($li->childNodes as $n) {
 			if ($n->nodeType === XML_TEXT_NODE) {
 				$split = preg_split(self::delimitRe, $n->textContent);
 				foreach ($split as $no => $_) {
-					$td = self::trAddTd($tr);
+					if ($no > 0) {
+						$td = self::trAddTd($tr);
+						$cols++;
+					}
 					$text = $doc->createTextNode($_);
 					$td->appendChild($text);
 				}
@@ -72,6 +78,18 @@ class Markdownkpp {
 			}
 		}
 		return $tr;
+	}
+
+	private static function colspanPad ($table) {
+		$maxCols = 0;
+		foreach ($table->firstChild->childNodes as $tr) { /* firstChild is tbody */
+			$maxCols = max($maxCols, $tr->childNodes->length);
+		}
+		foreach ($table->firstChild->childNodes as $tr) { /* firstChild is tbody */
+			$colspan = $maxCols - $tr->childNodes->length + 1;
+			if ($colspan > 1)
+				$tr->lastChild->setAttribute('colspan', $colspan);
+		}
 	}
 }
 
