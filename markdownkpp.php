@@ -1,11 +1,16 @@
 #!/usr/bin/php
 <?php
 
+/*
+	TODO: add some command line options to add control over process
+	TODO: add <html> stripping to lib-like use, too; currently limited to CLI-mode
+*/
+
 class Markdownkpp {
 
 	const delimitRe = '/[^\n ]\K    +/'; /* 4 or more spaces that aren't indentation */
 
-	static public function process ($dom) {
+	static public function ulsToTables ($dom) {
 		$uls = $dom->getElementsByTagName('ul');
 		foreach ($uls as $ul) {
 			if (self::ulHasTabs($ul)) {
@@ -91,6 +96,18 @@ class Markdownkpp {
 				$tr->lastChild->setAttribute('colspan', $colspan);
 		}
 	}
+
+	public static function aTargets ($dom) {
+		$as = $dom->getElementsByTagName('a');
+		foreach ($as as $a) {
+			if ($a->hasAttribute('href')) {
+				$href = $a->getAttribute('href');
+				if (preg_match('/^https?:\/\//', $href, $null)) {
+					$a->setAttribute('target', '_blank');
+				}
+			}
+		}
+	}
 }
 
 /*
@@ -127,7 +144,8 @@ if (defined('STDIN')) {
 	if (false === $dom->loadXML($xml)) {
 		exit(1);
 	}
-	Markdownkpp::process($dom);
+	Markdownkpp::ulsToTables($dom);
+	Markdownkpp::aTargets($dom);
 	$processed = $dom->saveXML($dom->firstChild); /* no xml declaration */
 	$processed = preg_replace('/^<html>\s?/', '', $processed, 1); /* unwrap */
 	$processed = preg_replace('/\s?<\/html>$/', '', $processed, 1);
