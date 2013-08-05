@@ -12,18 +12,32 @@ class Markdownkpp {
 
 	static public function ulsToTables ($dom) {
 		$uls = $dom->getElementsByTagName('ul');
-		foreach ($uls as $ul) {
-			if (self::ulHasTabs($ul)) {
-				$table = self::ulToTable($ul);
-				self::colspanPad($table);
-				$ul->parentNode->replaceChild($table, $ul);
+		$table = array($uls->length);
+		$ul = array($uls->length);
+		for ($s = 0; $s < $uls->length; $s++) {
+			$ul[$s] = $uls->item($s);
+			if (true === self::ulHasTabs($ul[$s])) {
+				$table[$s] = self::ulToTable($ul[$s]);
+				self::colspanPad($table[$s]);
+				//$ul[$s]->parentNode->replaceChild($table[$s], $ul[$s]);
+				// this fucks up the nodelist
+			}
+			else {
+				$table[$s] = false;
+			}
+		}
+		for ($s=$uls->length-1; $s>=0; $s--) {
+			if ($table[$s]) {
+				$ul[$s]->parentNode->replaceChild($table[$s], $ul[$s]);
 			}
 		}
 	}
 	
 	private static function ulHasTabs ($ul) {
 		foreach ($ul->childNodes as $li) {
+			//echo "child".$li->nodeName." \n";
 			if ($li->nodeName === 'li') {
+				//echo "LI";
 				foreach ($li->childNodes as $n) {
 					if ($n->nodeType === XML_TEXT_NODE) {
 						//if (strpos($n->textContent, "    ") !== false)
@@ -33,7 +47,6 @@ class Markdownkpp {
 				}
 			}
 		}
-		return false;
 	}
 
 	private static function ulHasThead ($ul) {
